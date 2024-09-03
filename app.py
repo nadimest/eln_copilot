@@ -3,6 +3,8 @@ import os
 import pyperclip
 import time
 import openai
+import plotly.express as px
+import pandas as pd
 
 # Set OpenAI API key from environment variable
 openai.api_key = st.secrets['open_ai_key']
@@ -62,6 +64,28 @@ def handle_generate_output():
                 content = chunk['choices'][0]['delta'].get('content', '')
                 st.session_state.output_buffer += content  # Append the new content to the buffer
                 output_placeholder.markdown(st.session_state.output_buffer)  # Update the output display
+
+    # Generate and display the Plotly chart
+    display_plotly_chart()
+
+def display_plotly_chart():
+    # Sample data for the plate layout
+    data = {
+        'Sample': ['Sample 1', 'Sample 2', 'Sample 3', 'Sample 4'],
+        'X': [0, 1, 0, 1],
+        'Y': [0, 0, 1, 1],
+        'Metadata': ['Meta 1', 'Meta 2', 'Meta 3', 'Meta 4']
+    }
+    
+    df = pd.DataFrame(data)
+
+    # Create a Plotly scatter plot
+    fig = px.scatter(df, x='X', y='Y', text='Sample', hover_name='Metadata', title="Sample Plate Layout")
+    fig.update_traces(marker=dict(size=20), selector=dict(mode='markers+text'))
+    fig.update_layout(yaxis=dict(scaleanchor="x"), xaxis=dict(constrain='domain'))
+
+    # Display the Plotly chart in Streamlit
+    st.plotly_chart(fig)
 
 # Expandable section to show workflow instructions
 if selected_workflow:
