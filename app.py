@@ -2,6 +2,7 @@ import streamlit as st
 import os
 import pyperclip
 import time
+import openai
 
 st.title('Lab Notebook Copilot')  # Updated app title
 
@@ -31,6 +32,16 @@ def copy_to_clipboard(markdown):
     time.sleep(1)  # Wait for 1 second
     st.empty()  # Clear the success message
 
+def generate_output(experiment_description, instructions):
+    # Call to OpenAI GPT-4o-mini
+    response = openai.ChatCompletion.create(
+        model="gpt-4o-mini",
+        messages=[
+            {"role": "user", "content": f"Generate a detailed output based on the following experiment description and instructions:\n\nExperiment Description: {experiment_description}\n\nInstructions: {instructions}"}
+        ]
+    )
+    return response['choices'][0]['message']['content']
+
 # Expandable section to show workflow instructions
 if selected_workflow:
     with st.expander("Instructions", expanded=False):  # Updated label
@@ -38,7 +49,8 @@ if selected_workflow:
 
 # Output section
 if st.button('Generate Output'):  # New button to generate output
-    output_text = f"**Output:**\n\n**Experiment Description:** {experiment_description}\n\n**Selected Workflow Instructions:**\n{workflows_data.get(selected_workflow, '')}"
+    instructions = workflows_data.get(selected_workflow, '')
+    output_text = generate_output(experiment_description, instructions)
 
 # Display the output text only once
 if output_text:
