@@ -81,7 +81,7 @@ def display_plotly_chart(heatmap_config: HeatmapConfig):
     # Create a DataFrame based on the heatmap configuration
     data = {
         'Sample': [f"Sample {i+1}" for i in range(heatmap_config.plate_size)],
-        'Row': [heatmap_config.rows[i // len(heatmap_config.columns)] for i in range(heatmap_config.plate_size)],
+        'Row': [heatmap_config.rows[i // len(heatmap_config.columns) % len(heatmap_config.rows)] for i in range(heatmap_config.plate_size)],
         'Column': [heatmap_config.columns[i % len(heatmap_config.columns)] for i in range(heatmap_config.plate_size)],
         'Value': [i + 1 for i in range(heatmap_config.plate_size)]  # Example values for the heatmap
     }
