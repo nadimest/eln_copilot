@@ -4,6 +4,9 @@ import pyperclip
 import time
 import openai
 
+# Set OpenAI API key from environment variable
+openai.api_key = os.getenv("OPENAI_API_KEY")
+
 st.title('Lab Notebook Copilot')  # Updated app title
 
 # Load workflows from markdown files in the workflows folder
