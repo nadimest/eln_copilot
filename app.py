@@ -45,9 +45,7 @@ def generate_output(experiment_description, instructions):
         stream=True  # Enable streaming
     )
     
-    # Yield the response as it comes in
-    for chunk in response:
-        yield chunk['choices'][0]['delta'].get('content', '')
+    return response
 
 # Expandable section to show workflow instructions
 if selected_workflow:
@@ -57,13 +55,14 @@ if selected_workflow:
 # Output section
 if st.button('Generate Output'):  # New button to generate output
     instructions = workflows_data.get(selected_workflow, '')
-    output_text = ""
     
     # Display the output text as it streams
     with st.empty():  # Create a placeholder for the output
-        for text in generate_output(experiment_description, instructions):
-            output_text += text
-            st.markdown(output_text)  # Update the output display
+        with st.chat_message("assistant"):
+            stream = generate_output(experiment_description, instructions)
+            for chunk in stream:
+                content = chunk['choices'][0]['delta'].get('content', '')
+                st.write(content)  # Update the output display
 
 # Copy to Clipboard button
 if st.button('📋 Copy to Clipboard'):
