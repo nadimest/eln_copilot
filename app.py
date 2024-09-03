@@ -50,7 +50,8 @@ if selected_workflow:
         st.markdown(workflows_data[selected_workflow])
 
 # Output section
-output_buffer = ""  # Buffer to hold the output text
+if 'output_buffer' not in st.session_state:
+    st.session_state.output_buffer = ""  # Initialize output_buffer in session state
 
 if st.button('Generate Output'):  # New button to generate output
     instructions = workflows_data.get(selected_workflow, '')
@@ -62,13 +63,13 @@ if st.button('Generate Output'):  # New button to generate output
         stream = generate_output(experiment_description, instructions)
         for chunk in stream:
             content = chunk['choices'][0]['delta'].get('content', '')
-            output_buffer += content  # Append the new content to the buffer
-            output_placeholder.markdown(output_buffer)  # Update the output display
+            st.session_state.output_buffer += content  # Append the new content to the buffer
+            output_placeholder.markdown(st.session_state.output_buffer)  # Update the output display
 
 # Copy to Clipboard button
-if st.button('📋 Copy to Clipboard'):
-    copy_to_clipboard(output_buffer)  # Use output_buffer instead of output_text
+st.button('📋 Copy to Clipboard', on_click=copy_to_clipboard, args=(st.session_state.output_buffer,))  # Use on_click
 
 # Clear button
 if st.button('Clear'):
+    st.session_state.output_buffer = ""  # Clear the output buffer
     st.rerun()
