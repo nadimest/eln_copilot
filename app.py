@@ -50,4 +50,4 @@ if generated_markdown:
 # Clear button
 if st.button('Clear'):
     generated_markdown = ""
-    st.experimental_rerun()
+    st.rerun()
