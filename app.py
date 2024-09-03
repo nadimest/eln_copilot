@@ -48,7 +48,7 @@ def handle_generate_output():
     instructions = workflows_data.get(selected_workflow, '')
     
     # Create a placeholder for the output
-    output_placeholder = st.empty()  
+    output_placeholder = st.session_state.output_placeholder
 
     with st.chat_message("assistant"):
         stream = generate_output(experiment_description, instructions)
@@ -65,9 +65,14 @@ if selected_workflow:
 # Output section
 if 'output_buffer' not in st.session_state:
     st.session_state.output_buffer = ""  # Initialize output_buffer in session state
+if 'output_placeholder' not in st.session_state:
+    st.session_state.output_placeholder = st.empty()  # Initialize output placeholder in session state
 
 # Generate Output button
 st.button('Generate Output', on_click=handle_generate_output)  # Use on_click with the new function
+
+# Output display
+st.markdown(st.session_state.output_buffer)  # Display the output buffer
 
 # Copy to Clipboard button
 st.button('📋 Copy to Clipboard', on_click=copy_to_clipboard)  # Use on_click without args
