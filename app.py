@@ -21,18 +21,24 @@ selected_workflow = st.selectbox('Select Workflow', workflow_options)
 # Initialize a variable to hold generated markdown
 generated_markdown = ""
 
-# Generate button
-if st.button('Generate Markdown'):
-    # Find the selected workflow's preprompt
+def generate_markdown(selected_workflow, experiment_description):
     selected_preprompt = next(workflow['preprompt'] for workflow in workflows_data['workflows'] if workflow['name'] == selected_workflow)
-    
-    # Generate markdown using the preprompt
-    generated_markdown = f'''### {selected_workflow} Markdown
+    return f'''### {selected_workflow} Markdown
 
 **Preprompt:** {selected_preprompt}
 
 **Experiment Description:**
 {experiment_description}'''
+
+def copy_to_clipboard(markdown):
+    pyperclip.copy(markdown)
+    st.success("Copied to clipboard!", icon="✅")
+    time.sleep(1)  # Wait for 1 second
+    st.empty()  # Clear the success message
+
+# Generate button
+if st.button('Generate Markdown'):
+    generated_markdown = generate_markdown(selected_workflow, experiment_description)
 
 # Output box to render markdown
 if generated_markdown:
@@ -40,10 +46,7 @@ if generated_markdown:
 
     # Copy to Clipboard button
     if st.button('📋 Copy to Clipboard'):
-        pyperclip.copy(generated_markdown)
-        st.success("Copied to clipboard!", icon="✅")
-        time.sleep(1)  # Wait for 1 second
-        st.empty()  # Clear the success message
+        copy_to_clipboard(generated_markdown)
 
 # Clear button
 if st.button('Clear'):
