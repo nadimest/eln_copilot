@@ -3,9 +3,9 @@ import os
 import pyperclip
 import time
 import openai
-import plotly.express as px
 import plotly.figure_factory as ff
 import pandas as pd
+from models import HeatmapConfig  # Import the HeatmapConfig model
 
 # Set OpenAI API key from environment variable
 openai.api_key = st.secrets['open_ai_key']
@@ -27,6 +27,15 @@ workflow_options = list(workflows_data.keys())
 st.sidebar.header("Input Section")
 experiment_description = st.sidebar.text_area('Experiment Description', 'Enter the experiment details here...')
 selected_workflow = st.sidebar.selectbox('Workflows', workflow_options)  # Updated label
+
+# Heatmap configuration input
+st.sidebar.header("Heatmap Configuration")
+with st.sidebar.form("heatmap_form"):
+    plate_size = st.number_input("Plate Size", min_value=1, value=96)
+    rows = st.text_input("Row Labels (comma-separated)", value="A,B,C,D,E,F,G,H")
+    columns = st.text_input("Column Labels (comma-separated)", value="1,2,3,4,5,6,7,8")
+    metadata_input = st.text_area("Metadata (JSON format)", value='{"Sample 1": {"description": "Control sample", "concentration": 5.0}}')
+    submit_button = st.form_submit_button("Generate Heatmap")
 
 def copy_to_clipboard():
     if 'output_buffer' in st.session_state:
@@ -69,13 +78,13 @@ def handle_generate_output():
     # Generate and display the Plotly chart
     display_plotly_chart()
 
-def display_plotly_chart():
-    # Sample data for the plate layout
+def display_plotly_chart(heatmap_config: HeatmapConfig):
+    # Create a DataFrame based on the heatmap configuration
     data = {
-        'Sample': ['Sample 1', 'Sample 2', 'Sample 3', 'Sample 4'],
-        'Row': ['A', 'A', 'B', 'B'],
-        'Column': ['1', '2', '1', '2'],
-        'Value': [1, 2, 3, 4]  # Example values for the heatmap
+        'Sample': [f"Sample {i+1}" for i in range(heatmap_config.plate_size)],
+        'Row': [heatmap_config.rows[i // len(heatmap_config.columns)] for i in range(heatmap_config.plate_size)],
+        'Column': [heatmap_config.columns[i % len(heatmap_config.columns)] for i in range(heatmap_config.plate_size)],
+        'Value': [i + 1 for i in range(heatmap_config.plate_size)]  # Example values for the heatmap
     }
     
     df = pd.DataFrame(data)
@@ -119,3 +128,21 @@ st.markdown(st.session_state.output_buffer)  # Display the output buffer
 
 # Copy to Clipboard button
 st.button('📋 Copy to Clipboard', on_click=copy_to_clipboard)  # Use on_click without args
+
+# Generate Heatmap button
+if submit_button:
+    try:
+        # Parse the input values into the HeatmapConfig model
+        rows_list = [row.strip() for row in rows.split(",")]
+        columns_list = [col.strip() for col in columns.split(",")]
+        metadata_dict = eval(metadata_input)  # Convert JSON string to dictionary
+        heatmap_config = HeatmapConfig(
+            plate_size=plate_size,
+            rows=rows_list,
+            columns=columns_list,
+            metadata=metadata_dict
+        )
+        # Display the heatmap
+        display_plotly_chart(heatmap_config)
+    except Exception as e:
+        st.error(f"Error generating heatmap: {e}")
