@@ -1,16 +1,20 @@
 import streamlit as st
-import json
+import os
 import pyperclip
 import time
 
 st.title('Biotech Data Collector App')
 
-# Load workflows from JSON file
-with open('workflows.json', 'r') as f:
-    workflows_data = json.load(f)
+# Load workflows from markdown files in the workflows folder
+workflows_data = {}
+workflows_folder = 'workflows'
+for filename in os.listdir(workflows_folder):
+    if filename.endswith('.md'):
+        with open(os.path.join(workflows_folder, filename), 'r') as f:
+            workflows_data[filename[:-3]] = f.read()  # Store the content without the .md extension
 
 # Extract workflow names for dropdown
-workflow_options = [workflow['name'] for workflow in workflows_data['workflows']]
+workflow_options = list(workflows_data.keys())
 
 # Input box for experiment description
 experiment_description = st.text_area('Experiment Description', 'Enter the experiment details here...')
@@ -22,7 +26,7 @@ selected_workflow = st.selectbox('Select Workflow', workflow_options)
 generated_markdown = ""
 
 def generate_markdown(selected_workflow, experiment_description):
-    selected_preprompt = next(workflow['preprompt'] for workflow in workflows_data['workflows'] if workflow['name'] == selected_workflow)
+    selected_preprompt = workflows_data[selected_workflow]
     return f'''### {selected_workflow} Markdown
 
 **Preprompt:** {selected_preprompt}
