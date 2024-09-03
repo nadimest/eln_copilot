@@ -40,9 +40,13 @@ if selected_workflow:
 if experiment_description:
     st.markdown(f"**Experiment Description:** {experiment_description}")
 
+# Output section
+output_text = f"**Output:**\n\n**Experiment Description:** {experiment_description}\n\n**Selected Workflow Instructions:**\n{workflows_data.get(selected_workflow, '')}"
+st.markdown(output_text)
+
 # Copy to Clipboard button
 if st.button('📋 Copy to Clipboard'):
-    copy_to_clipboard(experiment_description)
+    copy_to_clipboard(output_text)
 
 # Clear button
 if st.button('Clear'):
