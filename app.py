@@ -5,7 +5,7 @@ import time
 import openai
 
 # Set OpenAI API key from environment variable
-openai.api_key = os.getenv("OPENAI_API_KEY")
+openai.api_key = st.secrets['open_ai_key']
 
 st.title('Lab Notebook Copilot')  # Updated app title
 
