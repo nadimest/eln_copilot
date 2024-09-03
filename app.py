@@ -76,7 +76,8 @@ def handle_generate_output():
                 output_placeholder.markdown(st.session_state.output_buffer)  # Update the output display
 
     # Generate and display the Plotly chart
-    display_plotly_chart()
+    if 'heatmap_config' in st.session_state:
+        display_plotly_chart(st.session_state.heatmap_config)
 
 def display_plotly_chart(heatmap_config: HeatmapConfig):
     # Create a DataFrame based on the heatmap configuration
@@ -142,6 +143,8 @@ if submit_button:
             columns=columns_list,
             metadata=metadata_dict
         )
+        # Store the heatmap configuration in session state
+        st.session_state.heatmap_config = heatmap_config
         # Display the heatmap
         display_plotly_chart(heatmap_config)
     except Exception as e:
