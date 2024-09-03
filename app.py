@@ -44,9 +44,8 @@ if st.button('Generate Markdown'):
 if generated_markdown:
     st.code(generated_markdown, language="wiki")
 
-    # Copy to Clipboard button
-    if st.button('📋 Copy to Clipboard'):
-        copy_to_clipboard(generated_markdown)
+    # Copy to Clipboard button with on_click
+    st.button('📋 Copy to Clipboard', on_click=copy_to_clipboard, args=(generated_markdown,))
 
 # Clear button
 if st.button('Clear'):
