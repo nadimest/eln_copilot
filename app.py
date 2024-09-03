@@ -36,14 +36,18 @@ def copy_to_clipboard(markdown):
     st.empty()  # Clear the success message
 
 def generate_output(experiment_description, instructions):
-    # Call to OpenAI GPT-4o-mini
+    # Call to OpenAI GPT-4o-mini with streaming
     response = openai.ChatCompletion.create(
         model="gpt-4o-mini",
         messages=[
             {"role": "user", "content": f"Generate a detailed output based on the following experiment description and instructions:\n\nExperiment Description: {experiment_description}\n\nInstructions: {instructions}"}
-        ]
+        ],
+        stream=True  # Enable streaming
     )
-    return response['choices'][0]['message']['content']
+    
+    # Yield the response as it comes in
+    for chunk in response:
+        yield chunk['choices'][0]['delta'].get('content', '')
 
 # Expandable section to show workflow instructions
 if selected_workflow:
@@ -53,11 +57,13 @@ if selected_workflow:
 # Output section
 if st.button('Generate Output'):  # New button to generate output
     instructions = workflows_data.get(selected_workflow, '')
-    output_text = generate_output(experiment_description, instructions)
-
-# Display the output text only once
-if output_text:
-    st.markdown(output_text)
+    output_text = ""
+    
+    # Display the output text as it streams
+    with st.empty():  # Create a placeholder for the output
+        for text in generate_output(experiment_description, instructions):
+            output_text += text
+            st.markdown(output_text)  # Update the output display
 
 # Copy to Clipboard button
 if st.button('📋 Copy to Clipboard'):
