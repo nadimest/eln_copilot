@@ -29,7 +29,7 @@ def generate_markdown(selected_workflow, experiment_description):
     selected_preprompt = workflows_data[selected_workflow]
     return f'''### {selected_workflow} Markdown
 
-**Preprompt:** {selected_preprompt}
+{selected_preprompt}
 
 **Experiment Description:**
 {experiment_description}'''
