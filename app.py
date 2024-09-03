@@ -30,7 +30,7 @@ def copy_to_clipboard(markdown):
     pyperclip.copy(markdown)
     st.success("Copied to clipboard!", icon="✅")
     time.sleep(1)  # Wait for 1 second
-    st.empty()  # Clear the success message
+    # Instead of clearing the message, we can just let it disappear after a while
 
 def generate_output(experiment_description, instructions):
     # Call to OpenAI GPT-4o-mini with streaming
