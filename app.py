@@ -26,9 +26,6 @@ experiment_description = st.text_area('Experiment Description', 'Enter the exper
 # Dropdown to select a workflow
 selected_workflow = st.selectbox('Workflows', workflow_options)  # Updated label
 
-# Initialize a variable to hold generated markdown
-output_text = ""
-
 def copy_to_clipboard(markdown):
     pyperclip.copy(markdown)
     st.success("Copied to clipboard!", icon="✅")
@@ -69,7 +66,7 @@ if st.button('Generate Output'):  # New button to generate output
 
 # Copy to Clipboard button
 if st.button('📋 Copy to Clipboard'):
-    copy_to_clipboard(output_text)
+    copy_to_clipboard(output_buffer)  # Use output_buffer instead of output_text
 
 # Clear button
 if st.button('Clear'):
