@@ -50,12 +50,13 @@ if selected_workflow:
         st.markdown(workflows_data[selected_workflow])
 
 # Output section
+output_buffer = ""  # Buffer to hold the output text
+
 if st.button('Generate Output'):  # New button to generate output
     instructions = workflows_data.get(selected_workflow, '')
     
     # Create a placeholder for the output
     output_placeholder = st.empty()  
-    output_buffer = ""  # Buffer to hold the output text
 
     with st.chat_message("assistant"):
         stream = generate_output(experiment_description, instructions)
