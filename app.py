@@ -88,6 +88,9 @@ def display_plotly_chart():
                                        colorscale='Viridis', 
                                        showscale=True)
 
+    # Reverse the Y-axis
+    fig.update_yaxes(autorange="reversed")
+
     # Update layout for better visualization
     fig.update_layout(title="Sample Plate Layout Heatmap", 
                       xaxis_title="Columns", 
