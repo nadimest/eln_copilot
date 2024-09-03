@@ -23,7 +23,7 @@ experiment_description = st.text_area('Experiment Description', 'Enter the exper
 selected_workflow = st.selectbox('Workflows', workflow_options)  # Updated label
 
 # Initialize a variable to hold generated markdown
-generated_markdown = ""
+output_text = ""
 
 def copy_to_clipboard(markdown):
     pyperclip.copy(markdown)
@@ -37,12 +37,10 @@ if selected_workflow:
         st.markdown(workflows_data[selected_workflow])
 
 # Output section
-output_text = ""
 if st.button('Generate Output'):  # New button to generate output
     output_text = f"**Output:**\n\n**Experiment Description:** {experiment_description}\n\n**Selected Workflow Instructions:**\n{workflows_data.get(selected_workflow, '')}"
-    st.markdown(output_text)
 
-# Display the output text
+# Display the output text only once
 if output_text:
     st.markdown(output_text)
 
