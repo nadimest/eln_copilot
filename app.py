@@ -4,6 +4,7 @@ import pyperclip
 import time
 import openai
 import plotly.express as px
+import plotly.figure_factory as ff
 import pandas as pd
 
 # Set OpenAI API key from environment variable
@@ -72,17 +73,25 @@ def display_plotly_chart():
     # Sample data for the plate layout
     data = {
         'Sample': ['Sample 1', 'Sample 2', 'Sample 3', 'Sample 4'],
-        'X': [0, 1, 0, 1],
-        'Y': [0, 0, 1, 1],
-        'Metadata': ['Meta 1', 'Meta 2', 'Meta 3', 'Meta 4']
+        'Row': ['A', 'A', 'B', 'B'],
+        'Column': ['1', '2', '1', '2'],
+        'Value': [1, 2, 3, 4]  # Example values for the heatmap
     }
     
     df = pd.DataFrame(data)
 
-    # Create a Plotly scatter plot
-    fig = px.scatter(df, x='X', y='Y', text='Sample', hover_name='Metadata', title="Sample Plate Layout")
-    fig.update_traces(marker=dict(size=20), selector=dict(mode='markers+text'))
-    fig.update_layout(yaxis=dict(scaleanchor="x"), xaxis=dict(constrain='domain'))
+    # Create a heatmap using Plotly
+    heatmap_data = df.pivot("Row", "Column", "Value")
+    fig = ff.create_annotated_heatmap(z=heatmap_data.values, 
+                                       x=heatmap_data.columns.tolist(), 
+                                       y=heatmap_data.index.tolist(),
+                                       colorscale='Viridis', 
+                                       showscale=True)
+
+    # Update layout for better visualization
+    fig.update_layout(title="Sample Plate Layout Heatmap", 
+                      xaxis_title="Columns", 
+                      yaxis_title="Rows")
 
     # Display the Plotly chart in Streamlit
     st.plotly_chart(fig)
