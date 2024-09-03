@@ -49,6 +49,7 @@ def handle_generate_output():
     
     # Clear the output buffer before generating new output
     st.session_state.output_buffer = ""
+    st.session_state.output_placeholder.markdown("")  # Clear the output display
 
     # Create a placeholder for the output
     output_placeholder = st.session_state.output_placeholder
