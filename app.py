@@ -16,6 +16,9 @@ experiment_description = st.text_area('Experiment Description', 'Enter the exper
 # Dropdown to select a workflow
 selected_workflow = st.selectbox('Select Workflow', workflow_options)
 
+# Initialize a variable to hold generated markdown
+generated_markdown = ""
+
 # Generate button
 if st.button('Generate Markdown'):
     # Find the selected workflow's preprompt
@@ -28,13 +31,12 @@ if st.button('Generate Markdown'):
 
 **Experiment Description:**
 {experiment_description}'''
-    
-    # Output box to render markdown
+
+# Output box to render markdown
+if generated_markdown:
     st.markdown(generated_markdown)
 
-    # Copy to Clipboard button
-    if st.button('📋 Copy to Clipboard'):
-        st.write(f"<script>navigator.clipboard.writeText(`{generated_markdown}`);</script>", unsafe_allow_html=True)
-
-else:
-    st.markdown('Markdown output will be shown here...')
+# Clear button
+if st.button('Clear'):
+    generated_markdown = ""
+    st.experimental_rerun()
