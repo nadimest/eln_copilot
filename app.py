@@ -56,13 +56,16 @@ if selected_workflow:
 if st.button('Generate Output'):  # New button to generate output
     instructions = workflows_data.get(selected_workflow, '')
     
-    # Display the output text as it streams
-    with st.empty():  # Create a placeholder for the output
-        with st.chat_message("assistant"):
-            stream = generate_output(experiment_description, instructions)
-            for chunk in stream:
-                content = chunk['choices'][0]['delta'].get('content', '')
-                st.write(content)  # Update the output display
+    # Create a placeholder for the output
+    output_placeholder = st.empty()  
+    output_buffer = ""  # Buffer to hold the output text
+
+    with st.chat_message("assistant"):
+        stream = generate_output(experiment_description, instructions)
+        for chunk in stream:
+            content = chunk['choices'][0]['delta'].get('content', '')
+            output_buffer += content  # Append the new content to the buffer
+            output_placeholder.markdown(output_buffer)  # Update the output display
 
 # Copy to Clipboard button
 if st.button('📋 Copy to Clipboard'):
