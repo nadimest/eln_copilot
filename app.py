@@ -44,16 +44,7 @@ def generate_output(experiment_description, instructions):
     
     return response
 
-# Expandable section to show workflow instructions
-if selected_workflow:
-    with st.expander("Instructions", expanded=False):  # Updated label
-        st.markdown(workflows_data[selected_workflow])
-
-# Output section
-if 'output_buffer' not in st.session_state:
-    st.session_state.output_buffer = ""  # Initialize output_buffer in session state
-
-if st.button('Generate Output'):  # New button to generate output
+def handle_generate_output():
     instructions = workflows_data.get(selected_workflow, '')
     
     # Create a placeholder for the output
@@ -65,6 +56,18 @@ if st.button('Generate Output'):  # New button to generate output
             content = chunk['choices'][0]['delta'].get('content', '')
             st.session_state.output_buffer += content  # Append the new content to the buffer
             output_placeholder.markdown(st.session_state.output_buffer)  # Update the output display
+
+# Expandable section to show workflow instructions
+if selected_workflow:
+    with st.expander("Instructions", expanded=False):  # Updated label
+        st.markdown(workflows_data[selected_workflow])
+
+# Output section
+if 'output_buffer' not in st.session_state:
+    st.session_state.output_buffer = ""  # Initialize output_buffer in session state
+
+# Generate Output button
+st.button('Generate Output', on_click=handle_generate_output)  # Use on_click with the new function
 
 # Copy to Clipboard button
 st.button('📋 Copy to Clipboard', on_click=copy_to_clipboard)  # Use on_click without args
