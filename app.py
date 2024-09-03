@@ -33,7 +33,7 @@ def copy_to_clipboard(markdown):
 
 # Expandable section to show workflow instructions
 if selected_workflow:
-    with st.expander("Workflow Instructions", expanded=True):
+    with st.expander("Workflow Instructions", expanded=False):  # Set expanded to False
         st.markdown(workflows_data[selected_workflow])
 
 # Output box to render experiment description
