@@ -28,14 +28,13 @@ st.sidebar.header("Input Section")
 experiment_description = st.sidebar.text_area('Experiment Description', 'Enter the experiment details here...')
 selected_workflow = st.sidebar.selectbox('Workflows', workflow_options)  # Updated label
 
-# Heatmap configuration input
-st.sidebar.header("Heatmap Configuration")
-with st.sidebar.form("heatmap_form"):
-    plate_size = st.number_input("Plate Size", min_value=1, value=96)
-    rows = st.text_input("Row Labels (comma-separated)", value="A,B,C,D,E,F,G,H")
-    columns = st.text_input("Column Labels (comma-separated)", value="1,2,3,4,5,6,7,8")
-    metadata_input = st.text_area("Metadata (JSON format)", value='{"Sample 1": {"description": "Control sample", "concentration": 5.0}}')
-    submit_button = st.form_submit_button("Generate Heatmap")
+# Fixed heatmap configuration
+fixed_heatmap_config = HeatmapConfig(
+    plate_size=96,
+    rows=["A", "B", "C", "D", "E", "F", "G", "H"],
+    columns=["1", "2", "3", "4", "5", "6", "7", "8"],
+    metadata={"Sample 1": {"description": "Control sample", "concentration": 5.0}}
+)
 
 def copy_to_clipboard():
     if 'output_buffer' in st.session_state:
@@ -75,9 +74,8 @@ def handle_generate_output():
                 st.session_state.output_buffer += content  # Append the new content to the buffer
                 output_placeholder.markdown(st.session_state.output_buffer)  # Update the output display
 
-    # Generate and display the Plotly chart
-    if 'heatmap_config' in st.session_state:
-        display_plotly_chart(st.session_state.heatmap_config)
+    # Automatically generate and display the Plotly chart
+    display_plotly_chart(fixed_heatmap_config)
 
 def display_plotly_chart(heatmap_config: HeatmapConfig):
     # Create a DataFrame based on the heatmap configuration
@@ -129,23 +127,3 @@ st.markdown(st.session_state.output_buffer)  # Display the output buffer
 
 # Copy to Clipboard button
 st.button('📋 Copy to Clipboard', on_click=copy_to_clipboard)  # Use on_click without args
-
-# Generate Heatmap button
-if submit_button:
-    try:
-        # Parse the input values into the HeatmapConfig model
-        rows_list = [row.strip() for row in rows.split(",")]
-        columns_list = [col.strip() for col in columns.split(",")]
-        metadata_dict = eval(metadata_input)  # Convert JSON string to dictionary
-        heatmap_config = HeatmapConfig(
-            plate_size=plate_size,
-            rows=rows_list,
-            columns=columns_list,
-            metadata=metadata_dict
-        )
-        # Store the heatmap configuration in session state
-        st.session_state.heatmap_config = heatmap_config
-        # Display the heatmap
-        display_plotly_chart(heatmap_config)
-    except Exception as e:
-        st.error(f"Error generating heatmap: {e}")
