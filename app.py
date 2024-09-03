@@ -20,11 +20,10 @@ for filename in os.listdir(workflows_folder):
 # Extract workflow names for dropdown
 workflow_options = list(workflows_data.keys())
 
-# Input box for experiment description
-experiment_description = st.text_area('Experiment Description', 'Enter the experiment details here...')
-
-# Dropdown to select a workflow
-selected_workflow = st.selectbox('Workflows', workflow_options)  # Updated label
+# Sidebar for input box and workflow selection
+st.sidebar.header("Input Section")
+experiment_description = st.sidebar.text_area('Experiment Description', 'Enter the experiment details here...')
+selected_workflow = st.sidebar.selectbox('Workflows', workflow_options)  # Updated label
 
 def copy_to_clipboard():
     if 'output_buffer' in st.session_state:
@@ -78,12 +77,8 @@ if 'output_placeholder' not in st.session_state:
 st.button('Generate Output', on_click=handle_generate_output)  # Use on_click with the new function
 
 # Output display
+st.header("Output Section")  # Added header for output section
 st.markdown(st.session_state.output_buffer)  # Display the output buffer
 
 # Copy to Clipboard button
 st.button('📋 Copy to Clipboard', on_click=copy_to_clipboard)  # Use on_click without args
-
-# Clear button
-# if st.button('Clear'):
-#     st.session_state.output_buffer = ""  # Clear the output buffer
-#     st.rerun()
