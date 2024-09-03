@@ -26,11 +26,11 @@ experiment_description = st.text_area('Experiment Description', 'Enter the exper
 # Dropdown to select a workflow
 selected_workflow = st.selectbox('Workflows', workflow_options)  # Updated label
 
-def copy_to_clipboard(markdown):
-    pyperclip.copy(markdown)
-    st.success("Copied to clipboard!", icon="✅")
-    time.sleep(1)  # Wait for 1 second
-    # Instead of clearing the message, we can just let it disappear after a while
+def copy_to_clipboard():
+    if 'output_buffer' in st.session_state:
+        pyperclip.copy(st.session_state.output_buffer)
+        st.success("Copied to clipboard!", icon="✅")
+        time.sleep(1)  # Wait for 1 second
 
 def generate_output(experiment_description, instructions):
     # Call to OpenAI GPT-4o-mini with streaming
@@ -67,7 +67,7 @@ if st.button('Generate Output'):  # New button to generate output
             output_placeholder.markdown(st.session_state.output_buffer)  # Update the output display
 
 # Copy to Clipboard button
-st.button('📋 Copy to Clipboard', on_click=copy_to_clipboard, args=(st.session_state.output_buffer,))  # Use on_click
+st.button('📋 Copy to Clipboard', on_click=copy_to_clipboard)  # Use on_click without args
 
 # Clear button
 # if st.button('Clear'):
