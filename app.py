@@ -1,5 +1,7 @@
 import streamlit as st
 import json
+import pyperclip
+import time
 
 st.title('Biotech Data Collector App')
 
@@ -35,11 +37,13 @@ if st.button('Generate Markdown'):
 # Output box to render markdown
 if generated_markdown:
     st.code(generated_markdown, language="wiki")
-    #st.markdown()
 
     # Copy to Clipboard button
-    #if st.button('📋 Copy to Clipboard'):
-    #    st.write(f"<script>navigator.clipboard.writeText(`{generated_markdown}`);</script>", unsafe_allow_html=True)
+    if st.button('📋 Copy to Clipboard'):
+        pyperclip.copy(generated_markdown)
+        st.success("Copied to clipboard!", icon="✅")
+        time.sleep(1)  # Wait for 1 second
+        st.empty()  # Clear the success message
 
 # Clear button
 if st.button('Clear'):
