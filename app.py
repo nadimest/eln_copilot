@@ -28,14 +28,13 @@ if st.button('Generate Markdown'):
 
 **Experiment Description:**
 {experiment_description}'''
-    st.markdown(generated_markdown)
     
     # Output box to render markdown
-    st.text_area('Generated Markdown', generated_markdown)
+    st.markdown(generated_markdown)
 
     # Copy to Clipboard button
     if st.button('📋 Copy to Clipboard'):
-        st.write("<script>navigator.clipboard.writeText(`${generated_markdown}`);</script>", unsafe_allow_html=True)
+        st.write(f"<script>navigator.clipboard.writeText(`{generated_markdown}`);</script>", unsafe_allow_html=True)
 
 else:
     st.markdown('Markdown output will be shown here...')
