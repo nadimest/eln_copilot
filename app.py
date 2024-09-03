@@ -37,8 +37,14 @@ if selected_workflow:
         st.markdown(workflows_data[selected_workflow])
 
 # Output section
-output_text = f"**Output:**\n\n**Experiment Description:** {experiment_description}\n\n**Selected Workflow Instructions:**\n{workflows_data.get(selected_workflow, '')}"
-st.markdown(output_text)
+output_text = ""
+if st.button('Generate Output'):  # New button to generate output
+    output_text = f"**Output:**\n\n**Experiment Description:** {experiment_description}\n\n**Selected Workflow Instructions:**\n{workflows_data.get(selected_workflow, '')}"
+    st.markdown(output_text)
+
+# Display the output text
+if output_text:
+    st.markdown(output_text)
 
 # Copy to Clipboard button
 if st.button('📋 Copy to Clipboard'):
