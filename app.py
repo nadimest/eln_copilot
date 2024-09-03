@@ -81,7 +81,7 @@ def display_plotly_chart():
     df = pd.DataFrame(data)
 
     # Create a heatmap using Plotly
-    heatmap_data = df.pivot("Row", "Column", "Value")
+    heatmap_data = df.pivot(index="Row", columns="Column", values="Value")
     fig = ff.create_annotated_heatmap(z=heatmap_data.values, 
                                        x=heatmap_data.columns.tolist(), 
                                        y=heatmap_data.index.tolist(),
