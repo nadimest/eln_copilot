@@ -46,4 +46,4 @@ if st.button('📋 Copy to Clipboard'):
 
 # Clear button
 if st.button('Clear'):
-    st.experimental_rerun()
+    st.rerun()
