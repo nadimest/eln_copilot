@@ -56,11 +56,12 @@ def handle_generate_output():
     output_placeholder = st.session_state.output_placeholder
 
     with st.chat_message("assistant"):
-        stream = generate_output(experiment_description, instructions)
-        for chunk in stream:
-            content = chunk['choices'][0]['delta'].get('content', '')
-            st.session_state.output_buffer += content  # Append the new content to the buffer
-            output_placeholder.markdown(st.session_state.output_buffer)  # Update the output display
+        with st.spinner("Generating output..."):  # Show loading spinner
+            stream = generate_output(experiment_description, instructions)
+            for chunk in stream:
+                content = chunk['choices'][0]['delta'].get('content', '')
+                st.session_state.output_buffer += content  # Append the new content to the buffer
+                output_placeholder.markdown(st.session_state.output_buffer)  # Update the output display
 
 # Expandable section to show workflow instructions
 if selected_workflow:
