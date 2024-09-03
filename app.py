@@ -71,8 +71,10 @@ def handle_generate_output():
             stream = generate_output(experiment_description, instructions)
             for chunk in stream:
                 content = chunk['choices'][0]['delta'].get('content', '')
-                st.session_state.output_buffer += content  # Append the new content to the buffer
-                output_placeholder.markdown(st.session_state.output_buffer)  # Update the output display
+                if content:
+                    st.session_state.output_buffer += content  # Append the new content to the buffer
+                    output_placeholder.markdown(st.session_state.output_buffer)  # Update the output display
+                    time.sleep(0.1)  # Small delay to keep the app responsive
 
     # Automatically generate and display the Plotly chart
     display_plotly_chart(fixed_heatmap_config)
