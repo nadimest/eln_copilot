@@ -34,11 +34,12 @@ if st.button('Generate Markdown'):
 
 # Output box to render markdown
 if generated_markdown:
-    st.markdown(generated_markdown)
+    st.code(generated_markdown, language="wiki")
+    #st.markdown()
 
     # Copy to Clipboard button
-    if st.button('📋 Copy to Clipboard'):
-        st.write(f"<script>navigator.clipboard.writeText(`{generated_markdown}`);</script>", unsafe_allow_html=True)
+    #if st.button('📋 Copy to Clipboard'):
+    #    st.write(f"<script>navigator.clipboard.writeText(`{generated_markdown}`);</script>", unsafe_allow_html=True)
 
 # Clear button
 if st.button('Clear'):
