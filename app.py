@@ -36,10 +36,6 @@ if selected_workflow:
     with st.expander("Instructions", expanded=False):  # Updated label
         st.markdown(workflows_data[selected_workflow])
 
-# Output box to render experiment description
-if experiment_description:
-    st.markdown(f"**Experiment Description:** {experiment_description}")
-
 # Output section
 output_text = f"**Output:**\n\n**Experiment Description:** {experiment_description}\n\n**Selected Workflow Instructions:**\n{workflows_data.get(selected_workflow, '')}"
 st.markdown(output_text)
