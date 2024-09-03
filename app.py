@@ -47,6 +47,9 @@ def generate_output(experiment_description, instructions):
 def handle_generate_output():
     instructions = workflows_data.get(selected_workflow, '')
     
+    # Clear the output buffer before generating new output
+    st.session_state.output_buffer = ""
+
     # Create a placeholder for the output
     output_placeholder = st.session_state.output_placeholder
 
