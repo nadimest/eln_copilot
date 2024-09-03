@@ -70,6 +70,6 @@ if st.button('Generate Output'):  # New button to generate output
 st.button('📋 Copy to Clipboard', on_click=copy_to_clipboard, args=(st.session_state.output_buffer,))  # Use on_click
 
 # Clear button
-if st.button('Clear'):
-    st.session_state.output_buffer = ""  # Clear the output buffer
-    st.rerun()
+# if st.button('Clear'):
+#     st.session_state.output_buffer = ""  # Clear the output buffer
+#     st.rerun()
