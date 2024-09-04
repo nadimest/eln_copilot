@@ -30,8 +30,8 @@ selected_workflow = st.sidebar.selectbox('Workflows', workflow_options)  # Updat
 
 # Fixed heatmap configuration
 fixed_heatmap_config = HeatmapConfig(
-    plate_size=96,
-    rows=["A", "B", "C", "D", "E", "F", "G", "H"],
+    plate_size=48,
+    rows=["A", "B", "C", "D", "E", "F"],
     columns=["1", "2", "3", "4", "5", "6", "7", "8"],
     metadata={"Sample 1": {"description": "Control sample", "concentration": 5.0}}
 )
