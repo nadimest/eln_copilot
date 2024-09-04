@@ -6,6 +6,7 @@ import openai
 import plotly.figure_factory as ff
 import pandas as pd
 from models import HeatmapConfig  # Import the HeatmapConfig model
+from mockup_data import generate_mockup_data  # Import the function to generate mockup data
 
 # Set OpenAI API key from environment variable
 openai.api_key = st.secrets['open_ai_key']
@@ -28,12 +29,13 @@ st.sidebar.header("Input Section")
 experiment_description = st.sidebar.text_area('Experiment Description', 'Enter the experiment details here...')
 selected_workflow = st.sidebar.selectbox('Workflows', workflow_options)  # Updated label
 
-# Fixed heatmap configuration
+# Generate mockup data for heatmap configuration
+mockup_data = generate_mockup_data()
 fixed_heatmap_config = HeatmapConfig(
-    plate_size=48,
+    plate_size=mockup_data.plate_size,
     rows=["A", "B", "C", "D", "E", "F"],
     columns=["1", "2", "3", "4", "5", "6", "7", "8"],
-    metadata={"Sample 1": {"description": "Control sample", "concentration": 5.0}}
+    metadata={sample.sample_name: {"description": sample.starting_compound} for sample in mockup_data.samples}
 )
 
 def copy_to_clipboard():

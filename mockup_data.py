@@ -1,5 +1,10 @@
 from models import Sample, PlateSamples
 
+class PlateSamples:
+    def __init__(self, samples):
+        self.samples = samples
+        self.plate_size = len(samples)
+
 def generate_mockup_data() -> PlateSamples:
     samples = []
     starting_compounds = ["Compound A", "Compound B", "Compound C"]

@@ -1,6 +1,13 @@
 from pydantic import BaseModel, conint, constr
 from typing import List, Optional
 
+class Sample(BaseModel):
+    sample_name: str
+    position: str
+    starting_compound: str
+    process: str
+    enzyme: str
+
 class HeatmapConfig(BaseModel):
     plate_size: conint(ge=1)  # Minimum plate size of 1
     rows: List[constr(min_length=1)]  # List of row labels (e.g., ['A', 'B', 'C'])
