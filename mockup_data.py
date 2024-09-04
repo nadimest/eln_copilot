@@ -1,9 +1,10 @@
-from models import Sample, PlateSamples
+from models import Sample
+from pydantic import BaseModel
+from typing import List
 
-class PlateSamples:
-    def __init__(self, samples):
-        self.samples = samples
-        self.plate_size = len(samples)
+class PlateSamples(BaseModel):
+    samples: List[Sample]
+    plate_size: int
 
 def generate_mockup_data() -> PlateSamples:
     samples = []
@@ -23,4 +24,4 @@ def generate_mockup_data() -> PlateSamples:
         )
         samples.append(sample)
 
-    return PlateSamples(samples=samples)
+    return PlateSamples(samples=samples, plate_size=len(samples))
