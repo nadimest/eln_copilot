@@ -85,18 +85,22 @@ def display_plotly_chart(heatmap_config: HeatmapConfig):
         'Sample': [f"Sample {i+1}" for i in range(heatmap_config.plate_size)],
         'Row': [heatmap_config.rows[i // len(heatmap_config.columns)] for i in range(heatmap_config.plate_size)],
         'Column': [heatmap_config.columns[i % len(heatmap_config.columns)] for i in range(heatmap_config.plate_size)],
-        'Value': [i + 1 for i in range(heatmap_config.plate_size)]  # Example values for the heatmap
+        'Value': [i + 1 for i in range(heatmap_config.plate_size)],  # Example values for the heatmap
+        'Metadata': [heatmap_config.metadata.get(f"Sample {i+1}", {}).get("description", "") for i in range(heatmap_config.plate_size)]  # Get metadata for hover
     }
     
     df = pd.DataFrame(data)
 
     # Create a heatmap using Plotly
     heatmap_data = df.pivot_table(index="Row", columns="Column", values="Value", aggfunc='mean')  # Use pivot_table to handle duplicates
+    text_data = df.pivot_table(index="Row", columns="Column", values="Metadata", aggfunc='first')  # Prepare text for hover
     fig = ff.create_annotated_heatmap(z=heatmap_data.values, 
                                        x=heatmap_data.columns.tolist(), 
                                        y=heatmap_data.index.tolist(),
                                        colorscale='Viridis', 
-                                       showscale=True)
+                                       showscale=True,
+                                       text=text_data.values,  # Add hover text
+                                       hoverinfo='text')  # Show text on hover
 
     # Reverse the Y-axis
     fig.update_yaxes(autorange="reversed")
