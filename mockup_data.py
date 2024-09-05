@@ -1,27 +1,41 @@
-from models import Sample
-from pydantic import BaseModel
-from typing import List
+import json
+from models import Sample, HeatmapConfig
 
-class PlateSamples(BaseModel):
-    samples: List[Sample]
-    plate_size: int
+# Create sample data
+samples = [
+    Sample(
+        sample_name=f"Sample {i+1}",
+        position=f"{chr(65 + i // 12)}{i % 12 + 1}",
+        starting_compound=f"Compound {(i % 12) + 1}",
+        process=f"Process {(i % 3) + 1}",
+        enzyme=f"Enzyme {(i % 4) + 1}"
+    )
+    for i in range(96)
+]
 
-def generate_mockup_data() -> PlateSamples:
-    samples = []
-    starting_compounds = ["Compound A", "Compound B", "Compound C"]
-    processes = ["Process 1", "Process 2", "Process 3"]
-    enzymes = ["Enzyme X", "Enzyme Y", "Enzyme Z"]
+# Create heatmap configuration
+heatmap_config = HeatmapConfig(
+    plate_size=96,
+    rows=["A", "B", "C", "D", "E", "F", "G", "H"],
+    columns=["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"],
+    metadata={
+        sample.sample_name: {
+            "starting_compound": sample.starting_compound,
+            "process": sample.process,
+            "enzyme": sample.enzyme
+        }
+        for sample in samples
+    }
+)
 
-    for i in range(1, 49):  # 48 samples
-        sample_name = f"Sample {i}"
-        position = f"{chr(65 + (i - 1) // 8)}{(i - 1) % 8 + 1}"  # A1, A2, ..., F8
-        sample = Sample(
-            sample_name=sample_name,
-            position=position,
-            starting_compound=starting_compounds[i % len(starting_compounds)],
-            process=processes[i % len(processes)],
-            enzyme=enzymes[i % len(enzymes)]
-        )
-        samples.append(sample)
+# Convert data to JSON format
+mockup_data = {
+    "samples": [sample.model_dump() for sample in samples],
+    "heatmap_config": heatmap_config.model_dump()
+}
 
-    return PlateSamples(samples=samples, plate_size=len(samples))
+# Save mockup data to a JSON file
+with open("mockup_data.json", "w") as f:
+    json.dump(mockup_data, f, indent=2)
+
+print("Mockup data has been generated and saved to mockup_data.json")

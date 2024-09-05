@@ -1,137 +1,53 @@
 import streamlit as st
 import os
-import pyperclip
-import time
-import openai
-import plotly.figure_factory as ff
-import pandas as pd
-from models import HeatmapConfig  # Import the HeatmapConfig model
-from mockup_data import generate_mockup_data  # Import the function to generate mockup data
+import json
+from models import Sample, HeatmapConfig
+from components import sidebar_inputs, llm_parsing_section, sample_grid_visualization, display_raw_data
 
-# Set OpenAI API key from environment variable
-openai.api_key = st.secrets['open_ai_key']
+def load_workflows(folder):
+    workflows_data = {}
+    for filename in os.listdir(folder):
+        if filename.endswith('.md'):
+            with open(os.path.join(folder, filename), 'r') as f:
+                workflows_data[filename[:-3]] = f.read()
+    return workflows_data
 
-st.title('Lab Notebook Copilot')  # Updated app title
+def load_mockup_data(file_path):
+    try:
+        with open(file_path, "r") as f:
+            mockup_data = json.load(f)
+        samples = [Sample(**sample) for sample in mockup_data["samples"]]
+        heatmap_config = HeatmapConfig(**mockup_data["heatmap_config"])
+        return samples, heatmap_config
+    except Exception as e:
+        st.error(f"Error loading mockup data: {str(e)}")
+        return [], None
 
-# Load workflows from markdown files in the workflows folder
-workflows_data = {}
-workflows_folder = 'workflows'
-for filename in os.listdir(workflows_folder):
-    if filename.endswith('.md'):
-        with open(os.path.join(workflows_folder, filename), 'r') as f:
-            workflows_data[filename[:-3]] = f.read()  # Store the content without the .md extension
+def main():
+    st.set_page_config(page_title="Lab Notebook Copilot", layout="wide")
+    st.title('Lab Notebook Copilot')
 
-# Extract workflow names for dropdown
-workflow_options = list(workflows_data.keys())
+    # Load workflows
+    workflows_data = load_workflows('workflows')
+    workflow_options = list(workflows_data.keys())
 
-# Sidebar for input box and workflow selection
-st.sidebar.header("Input Section")
-experiment_description = st.sidebar.text_area('Experiment Description', 'Enter the experiment details here...')
-selected_workflow = st.sidebar.selectbox('Workflows', workflow_options)  # Updated label
+    # Sidebar inputs
+    experiment_description, selected_workflow = sidebar_inputs(workflow_options)
 
-# Generate mockup data for heatmap configuration
-mockup_data = generate_mockup_data()
-fixed_heatmap_config = HeatmapConfig(
-    plate_size=mockup_data.plate_size,
-    rows=["A", "B", "C", "D", "E", "F"],
-    columns=["1", "2", "3", "4", "5", "6", "7", "8"],
-    metadata={sample.sample_name: {"description": sample.starting_compound} for sample in mockup_data.samples}
-)
+    # Load mockup data
+    samples, heatmap_config = load_mockup_data("mockup_data.json")
 
-def copy_to_clipboard():
-    if 'output_buffer' in st.session_state:
-        pyperclip.copy(st.session_state.output_buffer)
-        st.success("Copied to clipboard!", icon="✅")
-        time.sleep(1)  # Wait for 1 second
+    # Main content
+    col1, col2 = st.columns([1, 1])
 
-def generate_output(experiment_description, instructions):
-    # Call to OpenAI GPT-4o-mini with streaming
-    response = openai.ChatCompletion.create(
-        model="gpt-4o-mini",
-        messages=[
-            {"role": "user", "content": f"Generate a detailed output based on the following experiment description and instructions:\n\nExperiment Description: {experiment_description}\n\nInstructions: {instructions}"}
-        ],
-        stream=True  # Enable streaming
-    )
-    
-    return response
+    with col1:
+        llm_parsing_section(experiment_description, workflows_data.get(selected_workflow, ''))
 
-def clear_output():
-    st.session_state.output_buffer = ""
-    st.session_state.output_placeholder.markdown("")  # Clear the output display
+    with col2:
+        sample_grid_visualization(samples, heatmap_config)
 
-def handle_generate_output():
-    instructions = workflows_data.get(selected_workflow, '')
-    
-    # Clear the output buffer before generating new output
-    clear_output()
-    # Create a placeholder for the output
-    output_placeholder = st.session_state.output_placeholder
+    # Raw data display
+    display_raw_data(samples, heatmap_config)
 
-    with st.chat_message("assistant"):
-        with st.spinner("Generating output..."):  # Show loading spinner
-            stream = generate_output(experiment_description, instructions)
-            for chunk in stream:
-                content = chunk['choices'][0]['delta'].get('content', '')
-                if content:
-                    st.session_state.output_buffer += content  # Append the new content to the buffer
-                    output_placeholder.markdown(st.session_state.output_buffer)  # Update the output display
-                    time.sleep(0.1)  # Small delay to keep the app responsive
-
-    # Automatically generate and display the Plotly chart
-    display_plotly_chart(fixed_heatmap_config)
-
-def display_plotly_chart(heatmap_config: HeatmapConfig):
-    # Create a DataFrame based on the heatmap configuration
-    data = {
-        'Sample': [f"Sample {i+1}" for i in range(heatmap_config.plate_size)],
-        'Row': [heatmap_config.rows[i // len(heatmap_config.columns)] for i in range(heatmap_config.plate_size)],
-        'Column': [heatmap_config.columns[i % len(heatmap_config.columns)] for i in range(heatmap_config.plate_size)],
-        'Value': [i + 1 for i in range(heatmap_config.plate_size)],  # Example values for the heatmap
-        'Metadata': [heatmap_config.metadata.get(f"Sample {i+1}", {}).get("description", "") for i in range(heatmap_config.plate_size)]  # Get metadata for hover
-    }
-    
-    df = pd.DataFrame(data)
-
-    # Create a heatmap using Plotly
-    heatmap_data = df.pivot_table(index="Row", columns="Column", values="Value", aggfunc='mean')  # Use pivot_table to handle duplicates
-    text_data = df.pivot_table(index="Row", columns="Column", values="Metadata", aggfunc='first')  # Prepare text for hover
-    fig = ff.create_annotated_heatmap(z=heatmap_data.values, 
-                                       x=heatmap_data.columns.tolist(), 
-                                       y=heatmap_data.index.tolist(),
-                                       colorscale='Viridis', 
-                                       showscale=True,
-                                       text=text_data.values,  # Add hover text
-                                       hoverinfo='text')  # Show text on hover
-
-    # Reverse the Y-axis
-    fig.update_yaxes(autorange="reversed")
-
-    # Update layout for better visualization
-    fig.update_layout(title="Sample Plate Layout Heatmap", 
-                      xaxis_title="Columns", 
-                      yaxis_title="Rows")
-
-    # Display the Plotly chart in Streamlit
-    st.plotly_chart(fig)
-
-# Expandable section to show workflow instructions
-if selected_workflow:
-    with st.expander("Instructions", expanded=False):  # Updated label
-        st.markdown(workflows_data[selected_workflow])
-
-# Output section
-if 'output_buffer' not in st.session_state:
-    st.session_state.output_buffer = ""  # Initialize output_buffer in session state
-if 'output_placeholder' not in st.session_state:
-    st.session_state.output_placeholder = st.empty()  # Initialize output placeholder in session state
-
-# Generate Output button
-st.button('Generate Output', on_click=handle_generate_output)  # Use on_click with the new function
-
-# Output display
-st.header("Output Section")  # Added header for output section
-st.markdown(st.session_state.output_buffer)  # Display the output buffer
-
-# Copy to Clipboard button
-st.button('📋 Copy to Clipboard', on_click=copy_to_clipboard)  # Use on_click without args
+if __name__ == "__main__":
+    main()

@@ -5,9 +5,13 @@ description = "A description of your project"
 authors = ["Your Name <you@example.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.8"
-pyperclip = "^1.8.2"  # Add the pyperclip dependency
-openai = "^0.27.0"  # Add the OpenAI dependency
+python = "^3.10.12"
+pyperclip = "^1.8.2"
+openai = "^0.27.0"
+plotly = "^5.24.0"
+pandas = "^2.2.2"
+streamlit = "^1.38.0"
+pydantic = "^2.8.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
