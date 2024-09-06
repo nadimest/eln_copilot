@@ -5,6 +5,7 @@ import pandas as pd
 from models import Sample, HeatmapConfig, ExperimentOutput
 from heatmap_visualizer import create_heatmap
 from llm_parser import parse_experiment_instructions, parse_description_to_table
+import pyperclip
 
 def load_workflows(folder):
     workflows_data = {}
@@ -42,7 +43,12 @@ def display_experiment_output(experiment_output):
     st.subheader("Sample Grid Visualization")
     metadata_options = [field for field in experiment_output.samples[0].model_dump().keys() if field not in ['sample_name', 'position']]
     
-    selected_metadata = st.multiselect("Select metadata to display", metadata_options)
+    # Select all metadata options by default
+    selected_metadata = st.multiselect(
+        "Select metadata to display",
+        options=metadata_options,
+        default=metadata_options 
+    )
     
     if selected_metadata:
         for metadata in selected_metadata:
@@ -66,6 +72,7 @@ def chat_interface(instructions):
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
 
+
     # Chat input
     if prompt := st.chat_input("What would you like to know about the experiment?"):
         st.session_state.messages.append({"role": "user", "content": prompt})
@@ -78,15 +85,29 @@ def chat_interface(instructions):
             response = st.write_stream(stream)
         st.session_state.messages.append({"role": "assistant", "content": response})
 
-        # Generate structured output
-        try:
-            structured_output = parse_description_to_table(response)
-            st.session_state.current_structured_output = structured_output
-        except Exception as e:
-            st.error(f"Error generating structured output: {str(e)}")
-            st.session_state.current_structured_output = None
+        # Generate structured output with spinner
+        with st.spinner("Generating structured output..."):
+            try:
+                structured_output = parse_description_to_table(response)
+                st.session_state.current_structured_output = structured_output
+                st.success("Structured output generated successfully!")
+            except Exception as e:
+                st.error(f"Error generating structured output: {str(e)}")
+                st.session_state.current_structured_output = None
 
     # Display structured output expander if available
     if st.session_state.current_structured_output is not None:
         with st.expander("View Structured Output", expanded=True):
             display_experiment_output(st.session_state.current_structured_output)
+
+        st.button(
+            "Copy Last Message",
+            on_click=copy_to_clipboard,
+            key="copy_button"
+        )
+
+def copy_to_clipboard():
+    if st.session_state.messages:
+        last_message = st.session_state.messages[-1]["content"]
+        pyperclip.copy(last_message)
+        st.success('Last message copied to clipboard!')
