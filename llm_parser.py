@@ -3,24 +3,28 @@ from models import  ExperimentOutput
 
 client = OpenAI()
 
-def parse_experiment_instructions(experiment_description, instructions):
+def parse_experiment_instructions(messages: list, instructions: str):
     """
-    Parse experiment instructions using OpenAI's GPT model.
+    Parse experiment instructions using OpenAI's GPT model with streaming.
     
     Args:
-    experiment_description (str): Description of the experiment.
+    messages (list): List of previous messages in the conversation.
     instructions (str): Instructions for the experiment.
     
     Returns:
-    str: Parsed output from the LLM.
+    A stream object that can be used with st.write_stream
     """
-    response = client.chat.completions.create(
+    full_messages = [
+        {"role": "system", "content": instructions},
+        *messages
+    ]
+    
+    return client.chat.completions.create(
         model="gpt-4o-mini",
-        messages=[
-            {"role": "user", "content": f"{instructions}\n\n ------- \n\n {experiment_description}"}
-        ]
+        messages=full_messages,
+        stream=True,
     )
-    return response.choices[0].message.content
+
 
 
 def parse_description_to_table(instructions):

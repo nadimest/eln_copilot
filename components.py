@@ -25,45 +25,11 @@ def load_mockup_data(file_path):
         st.error(f"Error loading mockup data: {str(e)}")
         return None, None
 
-def chat_interface(instructions):
-    if "messages" not in st.session_state:
-        st.session_state.messages = []
-
-    # Display chat messages
-    for message in st.session_state.messages:
-        with st.chat_message(message["role"]):
-            st.markdown(message["content"])
-            if message["role"] == "assistant" and "experiment_output" in message:
-                with st.expander("View Experiment Output"):
-                    display_experiment_output(message["experiment_output"])
-
-    # Chat input
-    if prompt := st.chat_input("What would you like to know about the experiment?"):
-        st.session_state.messages.append({"role": "user", "content": prompt})
-        with st.chat_message("user"):
-            freeform_response = st.empty()
-            freeform_response.markdown(prompt)
-
-        # Generate LLM response
-        with st.chat_message("assistant"):
-            response_placeholder = st.empty()
-            try:
-                llm_output = parse_experiment_instructions(prompt, instructions)
-                response_placeholder.markdown(llm_output)
-                st.session_state.messages.append({"role": "assistant", "content": llm_output})
-
-                with st.expander("View Structured Output"):
-                    try:
-                        structured_output = parse_description_to_table(llm_output)
-                        #experiment_output = parse_json_to_experiment_output(structured_output)
-                        st.session_state.messages[-1]["experiment_output"] = structured_output
-                        display_experiment_output(structured_output)
-                    except Exception as e:
-                        st.error(f"Error generating structured output: {str(e)}")
-            except Exception as e:
-                response_placeholder.error(f"Error generating response: {str(e)}")
-
 def display_experiment_output(experiment_output):
+    if experiment_output is None:
+        st.warning("No structured output available for this response.")
+        return
+
     st.subheader("Experiment Output")
     st.write(f"Plate Size: {experiment_output.plate_size}")
     st.write(f"Rows: {', '.join(experiment_output.rows)}")
@@ -75,6 +41,7 @@ def display_experiment_output(experiment_output):
 
     st.subheader("Sample Grid Visualization")
     metadata_options = [field for field in experiment_output.samples[0].model_dump().keys() if field not in ['sample_name', 'position']]
+    
     selected_metadata = st.multiselect("Select metadata to display", metadata_options)
     
     if selected_metadata:
@@ -86,3 +53,40 @@ def display_experiment_output(experiment_output):
                 st.error(f"Error creating sample grid for {metadata}: {str(e)}")
     else:
         st.warning("Please select at least one metadata option to display.")
+
+def chat_interface(instructions):
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
+    
+    if "current_structured_output" not in st.session_state:
+        st.session_state.current_structured_output = None
+
+    # Display chat messages
+    for message in st.session_state.messages:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
+
+    # Chat input
+    if prompt := st.chat_input("What would you like to know about the experiment?"):
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        with st.chat_message("user"):
+            st.markdown(prompt)
+
+        # Generate LLM response
+        with st.chat_message("assistant"):
+            stream = parse_experiment_instructions(st.session_state.messages, instructions)
+            response = st.write_stream(stream)
+        st.session_state.messages.append({"role": "assistant", "content": response})
+
+        # Generate structured output
+        try:
+            structured_output = parse_description_to_table(response)
+            st.session_state.current_structured_output = structured_output
+        except Exception as e:
+            st.error(f"Error generating structured output: {str(e)}")
+            st.session_state.current_structured_output = None
+
+    # Display structured output expander if available
+    if st.session_state.current_structured_output is not None:
+        with st.expander("View Structured Output", expanded=True):
+            display_experiment_output(st.session_state.current_structured_output)
