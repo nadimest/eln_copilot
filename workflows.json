@@ -1,0 +1,12 @@
+{
+    "workflows": [
+        {
+            "name": "Basic Workflow",
+            "preprompt": "Please format the following experiment description by standardizing terminology and ensuring clarity."
+        },
+        {
+            "name": "Advanced Workflow",
+            "preprompt": "Translate the given experiment description into a detailed markdown format for Notion."
+        }
+    ]
+}
