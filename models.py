@@ -1,4 +1,4 @@
-from pydantic import BaseModel, conint, constr
+from pydantic import BaseModel, Field
 from typing import List, Optional
 
 class Sample(BaseModel):
@@ -9,10 +9,10 @@ class Sample(BaseModel):
     enzyme: str
 
 class HeatmapConfig(BaseModel):
-    plate_size: conint(ge=1)  # Minimum plate size of 1
-    rows: List[constr(min_length=1)]  # List of row labels (e.g., ['A', 'B', 'C'])
-    columns: List[constr(min_length=1)]  # List of column labels (e.g., ['1', '2', '3'])
-    metadata: Optional[dict] = None  # Optional metadata for the samples
+    plate_size: int = Field(description="Minimum plate size of 1")
+    rows: List[str] = Field(description="List of row labels (e.g., ['A', 'B', 'C'])")
+    columns: List[str] = Field(description="List of column labels (e.g., ['1', '2', '3'])")
+    metadata: dict = Field(description="Metadata for the samples")
 
     class Config:
         schema_extra = {
@@ -26,3 +26,10 @@ class HeatmapConfig(BaseModel):
                 }
             }
         }
+
+class ExperimentOutput(BaseModel):
+    plate_size: int = Field(description="Minimum plate size of 1")
+    rows: List[str] = Field(description="List of row labels (e.g., ['A', 'B', 'C'])")
+    columns: List[str] = Field(description="List of column labels (e.g., ['1', '2', '3'])")
+    samples: List[Sample] = Field(..., description="List of samples in the experiment")
+    #heatmap_config: HeatmapConfig = Field(..., description="Configuration for the heatmap")

@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 from models import Sample, HeatmapConfig
 from heatmap_visualizer import create_heatmap
+from llm_parser import parse_experiment_instructions, parse_description_to_table
 
 def sidebar_inputs(workflow_options):
     st.sidebar.header("Input Section")
@@ -12,13 +13,18 @@ def sidebar_inputs(workflow_options):
 def llm_parsing_section(experiment_description, instructions):
     st.header("LLM Parsing Output")
     if st.button('Generate Output'):
-        with st.spinner("Generating output..."):
+        with st.spinner("Generating text output..."):
             try:
-                from llm_parser import parse_experiment_instructions
                 llm_output = parse_experiment_instructions(experiment_description, instructions)
                 st.write(llm_output)
             except Exception as e:
-                st.error(f"Error generating output: {str(e)}")
+                st.error(f"Error generating text output: {str(e)}")
+        with st.spinner("Generating structured output..."):
+            try:
+                structured_output = parse_description_to_table(llm_output)
+                st.write(structured_output)
+            except Exception as e:
+                st.error(f"Error generating structured output: {str(e)}")
 
 def sample_grid_visualization(samples, heatmap_config):
     st.header("Sample Grid Visualization")
