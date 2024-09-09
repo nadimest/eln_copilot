@@ -60,6 +60,24 @@ def display_experiment_output(experiment_output):
     else:
         st.warning("Please select at least one metadata option to display.")
 
+def show_workflow_modal(workflow_content):
+    st.session_state.show_modal = True
+    st.session_state.modal_content = workflow_content
+
+def hide_workflow_modal():
+    st.session_state.show_modal = False
+
+def sidebar_inputs(workflow_options):
+    st.sidebar.header("Input Section")
+    selected_workflow = st.sidebar.selectbox('Workflow', list(workflow_options.keys()))
+
+        # Show workflow content in sidebar expander
+    with st.sidebar.expander("Instructions:", expanded=True):
+        st.markdown(workflow_options[selected_workflow])
+    
+    return selected_workflow
+
+
 def chat_interface(instructions):
     if "messages" not in st.session_state:
         st.session_state.messages = []
@@ -101,7 +119,7 @@ def chat_interface(instructions):
             display_experiment_output(st.session_state.current_structured_output)
 
         st.button(
-            "Copy Last Message",
+            "Copy Output",
             on_click=copy_to_clipboard,
             key="copy_button"
         )

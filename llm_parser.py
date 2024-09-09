@@ -20,7 +20,7 @@ def parse_experiment_instructions(messages: list, instructions: str):
     ]
     
     return client.chat.completions.create(
-        model="gpt-4o-mini",
+        model="gpt-4o",
         messages=full_messages,
         stream=True,
     )
@@ -62,7 +62,7 @@ import pydantic
 
 def main():
 
-    response = openai.ChatCompletion.create(
+    response = client.ChatCompletion.create(
     model="gpt-4o-mini",
     messages=[
         {"role": "system", "content": "You are a helpful assistant that parses experiment descriptions into structured data."},
