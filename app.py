@@ -15,11 +15,12 @@ def main():
     st.title('Lab Notebook Copilot')
 
     # Load workflows
-    workflows_data = load_workflows('workflows')
+    if "workflows" not in st.session_state:
+        st.session_state.workflows = load_workflows('workflows')
     
     # Sidebar for workflow selection
-    selected_workflow = sidebar_inputs(workflows_data)
-    instructions = workflows_data.get(selected_workflow, '')
+    selected_workflow = sidebar_inputs(st.session_state.workflows )
+    instructions = st.session_state.workflows .get(selected_workflow, '')
 
     # Main chat interface
     chat_interface(instructions)

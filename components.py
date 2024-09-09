@@ -67,13 +67,45 @@ def show_workflow_modal(workflow_content):
 def hide_workflow_modal():
     st.session_state.show_modal = False
 
-def sidebar_inputs(workflow_options):
-    st.sidebar.header("Input Section")
-    selected_workflow = st.sidebar.selectbox('Workflow', list(workflow_options.keys()))
+def sidebar_inputs(initial_workflows):
+    if "workflows" not in st.session_state:
+        st.session_state.workflows = initial_workflows
 
-        # Show workflow content in sidebar expander
-    with st.sidebar.expander("Instructions:", expanded=True):
-        st.markdown(workflow_options[selected_workflow])
+    if "editing_workflow" not in st.session_state:
+        st.session_state.editing_workflow = False
+
+    st.sidebar.header("Settings")
+    
+    # Toggle for structured data generation
+    if "generate_structured_data" not in st.session_state:
+        st.session_state.generate_structured_data = True
+    
+    st.session_state.generate_structured_data = st.sidebar.toggle(
+        "Generate Structured Data",
+        value=st.session_state.generate_structured_data
+    )
+
+    st.sidebar.header("Workflow Selection")
+    selected_workflow = st.sidebar.selectbox('Workflow', list(st.session_state.workflows.keys()))
+
+    # Show workflow content in sidebar expander
+    with st.sidebar.expander("View/Edit Selected Workflow", expanded=True):
+        if not st.session_state.editing_workflow:
+            st.markdown(st.session_state.workflows[selected_workflow])
+            if st.button("Edit"):
+                st.session_state.editing_workflow = True
+                st.rerun()
+        else:
+            edited_content = st.text_area(
+                "Workflow Content",
+                value=st.session_state.workflows[selected_workflow],
+                height=300
+            )
+            if st.button("Save Changes"):
+                st.session_state.workflows[selected_workflow] = edited_content
+                st.session_state.editing_workflow = False
+                st.success("Workflow content updated!")
+                st.rerun()
     
     return selected_workflow
 
@@ -104,17 +136,18 @@ def chat_interface(instructions):
         st.session_state.messages.append({"role": "assistant", "content": response})
 
         # Generate structured output with spinner
-        with st.spinner("Generating structured output..."):
-            try:
-                structured_output = parse_description_to_table(response)
-                st.session_state.current_structured_output = structured_output
-                st.success("Structured output generated successfully!")
-            except Exception as e:
-                st.error(f"Error generating structured output: {str(e)}")
-                st.session_state.current_structured_output = None
+        if st.session_state.generate_structured_data:
+            with st.spinner("Generating structured output..."):
+                try:
+                    structured_output = parse_description_to_table(response)
+                    st.session_state.current_structured_output = structured_output
+                    st.success("Structured output generated successfully!")
+                except Exception as e:
+                    st.error(f"Error generating structured output: {str(e)}")
+                    st.session_state.current_structured_output = None
 
     # Display structured output expander if available
-    if st.session_state.current_structured_output is not None:
+    if st.session_state.generate_structured_data and st.session_state.current_structured_output is not None:
         with st.expander("View Structured Output", expanded=True):
             display_experiment_output(st.session_state.current_structured_output)
 

@@ -57,8 +57,6 @@ def parse_description_to_table(instructions):
 # Add any additional helper functions for LLM parsing here
 
 
-import pydantic
-
 
 def main():
 
