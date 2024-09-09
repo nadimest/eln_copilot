@@ -24,13 +24,14 @@ Your task is to interpret user input about experimental setups and generate a st
    a. Create a table with the following columns: 
       Experiment ID, Enzyme, Process, Starting Compound, Rack ID, Position, Yield (%)
    b. Fill the table row by row, following the layout and distributions from your standardized interpretation.
-   c. Ensure that the Position column correctly reflects the row-column format (e.g., A1, B2, etc.).
+   c. Ensure that the Position column correctly reflects the row-column format (e.g., A1, B2, etc.). Notice that the combination of rack ID and Position should be unique.
    d. Leave the Yield (%) column empty for users to fill in later.
-   e. Assign a unique Experiment ID to each unique combination of Enzyme, Process, and Starting Compound.
+   e. Assign a unique Experiment ID to each unique combination of Enzyme, Process, and Starting Compound. Make sure that every experiment replicate have the same label
    f. Use the provided Rack IDs or the default naming convention if not specified.
 
 4. Validation:
-   Double-check that your table accurately reflects the interpreted and standardized input.
+   - Double-check that your table accurately reflects the interpreted and standardized input.
+   - Make sure that 
 
 Example of input interpretation:
 
