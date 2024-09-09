@@ -53,6 +53,8 @@ Lab Notebook Copilot is an interactive Streamlit application designed to assist 
 
 5. Explore generated heatmaps and structured data in the main interface.
 
+(For a quick working demo, copy mockup_input.md for an input example and select 3_way_optimization as the workflow )
+
 ## Project Structure
 
 - `app.py`: Main Streamlit application file
